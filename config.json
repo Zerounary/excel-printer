@@ -288,10 +288,146 @@
                         ]
                     }
                 }
+            },
+            {
+                "template": "company_order",
+                "name": "公司订单",
+                "variables": {
+                    "company_order": {
+                        "title": "公司订单",
+                        "headers": [
+                            "送达时间",
+                            "商品名称",
+                            "商品分类",
+                            "商品单位",
+                            "商品数量",
+                            "商品单价",
+                            "商品总价"
+                        ],
+                        "mergeColumns": [
+                            "送达时间"
+                        ],
+                        "rows": [
+                            [
+                                "2026-01-05( 星期一 )",
+                                "香菇",
+                                "蘑菇类",
+                                "斤",
+                                "20",
+                                "￥7.60",
+                                "￥152.00"
+                            ],
+                            [
+                                "",
+                                "莴笋头",
+                                "普通蔬菜",
+                                "斤",
+                                "30",
+                                "￥2.53",
+                                "￥75.90"
+                            ],
+                            [
+                                "",
+                                "新土豆(黄皮黄心，3两-1斤)",
+                                "普通蔬菜",
+                                "斤",
+                                "35",
+                                "￥2.28",
+                                "￥79.80"
+                            ]
+                        ]
+                    }
+                }
+            },
+            {
+                "template": "company_good_sum",
+                "name": "订单商品汇总统计",
+                "variables": {
+                    "good_sum": {
+                        "title": "订单商品汇总统计",
+                        "headers": [
+                            "采购商",
+                            "商品名称",
+                            "商品分类",
+                            "商品单位",
+                            "商品数量",
+                            "商品单价",
+                            "商品总价",
+                            "采购商总金额"
+                        ],
+                        "rows": [
+                            [
+                                "某某水务局（67）",
+                                "本地红小米椒",
+                                "蔬菜A级",
+                                "斤",
+                                "3",
+                                "￥18.16",
+                                "￥54.48",
+                                "￥536.51"
+                            ],
+                            [
+                                "某某水务局（67）",
+                                "本地上海青",
+                                "蔬菜A级",
+                                "斤",
+                                "17",
+                                "￥2.62",
+                                "￥44.54",
+                                ""
+                            ],
+                            [
+                                "",
+                                "本地长白萝卜",
+                                "蔬菜A级",
+                                "斤",
+                                "7",
+                                "￥1.30",
+                                "￥9.10",
+                                ""
+                            ]
+                        ],
+                        "mergeColumns": [
+                            "采购商",
+                            "采购商总金额"
+                        ]
+                    }
+                }
             }
         ]
     },
     "sheetsTemplates": [
+        {
+            "id": "company_good_sum",
+            "name": "公司商品统计",
+            "paper": "A4",
+            "maxColumns": 7,
+            "rows": [
+                {
+                    "type": "title",
+                    "value": "{{good_sum.title}}"
+                },
+                {
+                    "type": "space-row",
+                    "count": 1
+                },
+                {
+                    "type": "table",
+                    "headers": {
+                        "$var": "good_sum.headers"
+                    },
+                    "mergeColumns": {
+                        "$var": "good_sum.mergeColumns"
+                    },
+                    "columnWidths": {
+                        "$var": "good_sum.columnWidths"
+                    },
+                    "rows": {
+                        "$var": "good_sum.rows"
+                    }
+                }
+            ]
+        },
         {
             "id": "supplier_good_sum",
             "name": "供应商备货商品统计",
@@ -319,6 +455,34 @@
                     },
                     "rows": {
                         "$var": "good_sum.rows"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "company_order",
+            "name": "公司订单",
+            "paper": "A4",
+            "maxColumns": 6,
+            "rows": [
+                {
+                    "type": "title",
+                    "value": "{{company_order.title}}"
+                },
+                {
+                    "type": "space-row",
+                    "count": 1
+                },
+                {
+                    "type": "table",
+                    "headers": {
+                        "$var": "company_order.headers"
+                    },
+                    "mergeColumns": {
+                        "$var": "company_order.mergeColumns"
+                    },
+                    "rows": {
+                        "$var": "company_order.rows"
                     }
                 }
             ]
