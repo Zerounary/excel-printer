@@ -164,10 +164,126 @@
                         ]
                     }
                 }
+            },
+            {
+                "template": "supplier_pick",
+                "name": "某某供应商备货",
+                "variables": {
+                    "picksum": {
+                        "title": "某某供应商备货统计",
+                        "headers": [
+                            "商品名称",
+                            "商品单位",
+                            "商品数量",
+                            "商品单价",
+                            "商品总价"
+                        ],
+                        "rows": [
+                            [
+                                "本地菜瓜",
+                                "斤",
+                                "5614",
+                                "￥2.28",
+                                "￥12,799.92"
+                            ],
+                            [
+                                "新土豆(黄皮黄心，3两-1斤)",
+                                "斤",
+                                "21698",
+                                "￥1.67",
+                                "￥36,235.66"
+                            ]
+                        ]
+                    },
+                    "supplier_pick": {
+                        "title": "某某供应商备货明细",
+                        "headers": [
+                            "备货时间",
+                            "商品名称",
+                            "商品单位",
+                            "商品数量",
+                            "商品单价",
+                            "商品总价"
+                        ],
+                        "mergeColumns": [
+                            "备货时间"
+                        ],
+                        "rows": [
+                            [
+                                "2026年1月10日",
+                                "本地菜瓜",
+                                "斤",
+                                "1805",
+                                "￥2.28",
+                                "￥4,115.40"
+                            ],
+                            [
+                                "2026年1月10日",
+                                "新土豆(黄皮黄心，3两-1斤)",
+                                "斤",
+                                "3749",
+                                "￥1.67",
+                                "￥6,260.83"
+                            ]
+                        ]
+                    }
+                }
             }
         ]
     },
     "sheetsTemplates": [
+        {
+            "id": "supplier_pick",
+            "name": "供应商备货",
+            "paper": "A4",
+            "maxColumns": 6,
+            "rows": [
+                {
+                    "type": "title",
+                    "value": "{{picksum.title}}"
+                },
+                {
+                    "type": "space-row",
+                    "count": 1
+                },
+                {
+                    "type": "table",
+                    "headers": {
+                        "$var": "picksum.headers"
+                    },
+                    "mergeColumns": {
+                        "$var": "picksum.mergeColumns"
+                    },
+                    "rows": {
+                        "$var": "picksum.rows"
+                    }
+                },
+                {
+                    "type": "space-row",
+                    "count": 2
+                },
+                {
+                    "type": "title",
+                    "value": "{{supplier_pick.title}}"
+                },
+                {
+                    "type": "space-row",
+                    "count": 1
+                },
+                {
+                    "type": "table",
+                    "headers": {
+                        "$var": "supplier_pick.headers"
+                    },
+                    "mergeColumns": {
+                        "$var": "supplier_pick.mergeColumns"
+                    },
+                    "rows": {
+                        "$var": "supplier_pick.rows"
+                    }
+                }
+            ]
+        },
         {
             "id": "delivery",
             "name": "示例送货单",
