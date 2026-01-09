@@ -114,11 +114,11 @@ export function generateWorkbookFromConfig(config) {
   workbook.created = new Date();
 
   for (const sheet of sheets) {
-    const maxColumns = normalizeMaxColumns(sheet.maxColumns);
+    const sheetVariables = isPlainObject(sheet._variables) ? sheet._variables : variables;
+    const resolvedMaxColumns = sheetVariables ? applyTemplate(sheet.maxColumns, sheetVariables) : sheet.maxColumns;
+    const maxColumns = normalizeMaxColumns(resolvedMaxColumns);
     const sheetStyle = isPlainObject(sheet.style) ? sheet.style : undefined;
     const mergedGlobalStyle = mergeStyles(globalStyle, sheetStyle);
-
-    const sheetVariables = isPlainObject(sheet._variables) ? sheet._variables : variables;
     const resolvedSheetName = sheetVariables ? applyTemplate(sheet.name || 'Sheet', sheetVariables) : sheet.name || 'Sheet';
     const sheetName = typeof resolvedSheetName === 'string' ? resolvedSheetName : String(resolvedSheetName ?? 'Sheet');
 

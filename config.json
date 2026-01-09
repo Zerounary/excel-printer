@@ -393,6 +393,37 @@
                         ]
                     }
                 }
+            },
+            {
+                "template": "common",
+                "name": "商品汇总统计",
+                "variables": {
+                    "title": "商品汇总统计",
+                    "maxColumns": 5,
+                    "headers": [
+                        "商品名称",
+                        "商品分类",
+                        "商品单位",
+                        "商品数量",
+                        "商品总价"
+                    ],
+                    "rows": [
+                        [
+                            "菠菜",
+                            "精品蔬菜",
+                            "斤",
+                            "149",
+                            "￥508.52"
+                        ],
+                        [
+                            "冬寒菜",
+                            "普通蔬菜",
+                            "斤",
+                            "152",
+                            "￥389.18"
+                        ]
+                    ]
+                }
             }
         ]
     },
@@ -401,7 +432,7 @@
             "id": "company_good_sum",
             "name": "公司商品统计",
             "paper": "A4",
-            "maxColumns": 7,
+            "maxColumns": 8,
             "rows": [
                 {
                     "type": "title",
@@ -737,6 +768,36 @@
                     },
                     "rows": {
                         "$var": "stock.rows"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "common",
+            "name": "通用",
+            "paper": "A4",
+            "maxColumns": {
+                "$var": "maxColumns"
+            },
+            "rows": [
+                {
+                    "type": "title",
+                    "value": "{{title}}"
+                },
+                {
+                    "type": "space-row",
+                    "count": 1
+                },
+                {
+                    "type": "table",
+                    "headers": {
+                        "$var": "headers"
+                    },
+                    "mergeColumns": {
+                        "$var": "mergeColumns"
+                    },
+                    "rows": {
+                        "$var": "rows"
                     }
                 }
             ]
