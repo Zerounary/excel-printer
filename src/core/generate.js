@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs';
 
 import { applySheetDefaults, resolvePaperOptions } from './layout.js';
-import { applyCellStyle, applyDefaultBorders, isPlainObject, mergeStyles } from './styles.js';
+import { applyCellStyle, applyDefaultBorders, isPlainObject, mergeDeep, mergeStyles } from './styles.js';
 import { normalizeMaxColumns, toExcelColumnName } from './utils.js';
 import { renderForm, renderSpaceRow, renderTable, renderText, renderTitle } from './renderers.js';
 import { applyTemplate } from './template.js';
@@ -12,7 +12,65 @@ function normalizeSheetsConfig(config) {
   }
 
   const globalStyle = isPlainObject(config.style) ? config.style : undefined;
-  const variables = isPlainObject(config.variables) ? config.variables : isPlainObject(config.vars) ? config.vars : undefined;
+  const variablesRaw = isPlainObject(config.variables) ? config.variables : isPlainObject(config.vars) ? config.vars : undefined;
+
+  const hasTemplates = Array.isArray(config.sheetsTemplates);
+  const templateList = hasTemplates ? config.sheetsTemplates.filter((t) => isPlainObject(t)) : undefined;
+
+  const instanceList = Array.isArray(variablesRaw?.sheets) ? variablesRaw.sheets.filter((s) => isPlainObject(s)) : undefined;
+
+  if (templateList && instanceList) {
+    const variables = isPlainObject(variablesRaw) ? { ...variablesRaw } : undefined;
+    if (variables && Object.prototype.hasOwnProperty.call(variables, 'sheets')) {
+      delete variables.sheets;
+    }
+
+    const sheets = [];
+    for (let i = 0; i < instanceList.length; i += 1) {
+      const inst = instanceList[i];
+      const templateKey = inst.template ?? inst.sheetsTemplate ?? inst.templateId;
+      if (typeof templateKey !== 'string' || !templateKey) continue;
+
+      const tmpl = templateList.find((t) => t?.id === templateKey || t?.name === templateKey);
+      if (!tmpl) continue;
+
+      const {
+        name,
+        template,
+        sheetsTemplate,
+        templateId,
+        variables: instVariablesRaw,
+        vars: instVarsRaw,
+        data: instDataRaw,
+        ...sheetOverride
+      } = inst;
+
+      const instVariables = isPlainObject(instVariablesRaw)
+        ? instVariablesRaw
+        : isPlainObject(instVarsRaw)
+          ? instVarsRaw
+          : isPlainObject(instDataRaw)
+            ? instDataRaw
+            : undefined;
+
+      const mergedVars = mergeDeep(variables ?? {}, instVariables ?? {});
+      const sheetInfo = {
+        name: typeof name === 'string' && name ? name : typeof tmpl.name === 'string' && tmpl.name ? tmpl.name : 'Sheet',
+        index: i,
+        template: templateKey,
+      };
+      const sheetVars = mergeDeep(mergedVars, { sheet: sheetInfo });
+
+      const mergedSheet = mergeDeep(tmpl, sheetOverride);
+      mergedSheet.name = sheetInfo.name;
+      mergedSheet._variables = sheetVars;
+      sheets.push(mergedSheet);
+    }
+
+    return { style: globalStyle, variables, sheets };
+  }
+
+  const variables = variablesRaw;
 
   if (Array.isArray(config.sheets)) {
     const sheets = config.sheets.filter((s) => isPlainObject(s));
@@ -60,11 +118,16 @@ export function generateWorkbookFromConfig(config) {
     const sheetStyle = isPlainObject(sheet.style) ? sheet.style : undefined;
     const mergedGlobalStyle = mergeStyles(globalStyle, sheetStyle);
 
-    const worksheet = workbook.addWorksheet(sheet.name || 'Sheet', {
+    const sheetVariables = isPlainObject(sheet._variables) ? sheet._variables : variables;
+    const resolvedSheetName = sheetVariables ? applyTemplate(sheet.name || 'Sheet', sheetVariables) : sheet.name || 'Sheet';
+    const sheetName = typeof resolvedSheetName === 'string' ? resolvedSheetName : String(resolvedSheetName ?? 'Sheet');
+
+    const worksheet = workbook.addWorksheet(sheetName, {
       views: [{ showGridLines: false }],
     });
 
-    const paperOptions = resolvePaperOptions(sheet.paper || sheet.paperSize);
+    const resolvedPaper = sheetVariables ? applyTemplate(sheet.paper || sheet.paperSize, sheetVariables) : sheet.paper || sheet.paperSize;
+    const paperOptions = resolvePaperOptions(resolvedPaper);
     const totalWidthOverride =
       typeof sheet.totalWidth === 'number' && Number.isFinite(sheet.totalWidth) ? sheet.totalWidth : undefined;
     const marginsOverride = isPlainObject(sheet.margins) ? sheet.margins : undefined;
@@ -79,7 +142,7 @@ export function generateWorkbookFromConfig(config) {
     const noBorderRows = new Set();
 
     for (const rawBlock of sheet.rows ?? []) {
-      const block = normalizeBlock(rawBlock, variables);
+      const block = normalizeBlock(rawBlock, sheetVariables);
       if (!block || typeof block !== 'object') continue;
 
       if (block.type === 'title') {

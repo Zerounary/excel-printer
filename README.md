@@ -101,41 +101,84 @@ await generateXlsxFileFromConfigFile({
 
 ## config.json 总体结构
 
+推荐使用“模板 + 实例”结构：
+
 ```json
 {
   "style": {},
-  "sheets": []
+  "variables": {
+    "shared": {},
+    "sheets": []
+  },
+  "sheetsTemplates": []
 }
 ```
 
 - `style`（可选）
   - **全局默认样式**。会被各 block 的 `style` 覆盖。
-- `sheets`
-  - 一个数组，每个元素对应一个 Excel worksheet。
+- `variables`
+  - 全局变量（`shared` 示例仅表示你可自定义结构）
+  - `sheets`：**实例数组**，每个元素表示一个真实 sheet，需要指定使用哪个模板
+- `sheetsTemplates`
+  - 模板数组，每个元素描述一个可复用的 sheet 布局（原来的 `sheets` 就是现在的模板内容）
 
-### sheets[] 结构
+### sheetsTemplates[] 结构（模板）
 
 ```json
 {
-  "name": "打印",
+  "id": "delivery",
+  "name": "送货单模板",
+  "paper": "A4",
   "maxColumns": 6,
-  "style": {},
   "rows": []
 }
 ```
 
+- `id`（推荐）：模板唯一标识，`variables.sheets[].template` 会引用它
+- 其他字段（`name/maxColumns/rows/...`）与旧 `sheets[]` 结构一致
+
+### variables.sheets[] 结构（实例）
+
+```json
+{
+  "template": "delivery",
+  "name": "2026-01-05 送货单",
+  "variables": {
+    "delivery": {
+      "date1": "2026-01-05",
+      "date2": "2026-01-06"
+    }
+  }
+}
+```
+
+- `template` / `sheetsTemplate` / `templateId`
+  - 选择要复用的模板（匹配 `id` 或 `name`）
 - `name`
-  - worksheet 名称
-- `maxColumns`
-  - 该 sheet 使用的列数（1 ~ N）
-- `style`（可选）
-  - 该 sheet 的默认样式，会叠加在全局 `style` 之上
-- `rows`
-  - 按顺序渲染的块列表（标题、表单、表格、文本等）
+  - 真实 sheet 名称（若省略，将回落到模板的 `name`）
+- `variables` / `vars` / `data`
+  - 该 sheet 的私有变量，会与全局 `variables` 深度合并
+- 你也可以直接在实例对象上写与模板同名的字段（例如 `paper`、`rows`），用于覆盖模板
 
-### 旧版配置兼容说明
+> 额外内置变量：渲染时会注入 `sheet = { name, index, template }`，因此模板里可以写 `{{sheet.name}}` 等。
 
-为了兼容历史配置，仍支持旧格式：
+### 兼容模式：直接使用 sheets[]
+
+仍然支持旧写法：
+
+```json
+{
+  "sheets": [
+    {
+      "name": "打印",
+      "maxColumns": 6,
+      "rows": []
+    }
+  ]
+}
+```
+
+以及更老的单-sheet 写法：
 
 ```json
 {
@@ -144,7 +187,7 @@ await generateXlsxFileFromConfigFile({
 }
 ```
 
-旧格式会被当成单个 sheet（默认名为 `打印`）。
+这两种都会被自动转换为单个 sheet。
 
 ## 项目架构 / 目录说明
 
