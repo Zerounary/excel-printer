@@ -18,3 +18,30 @@ export async function generateXlsxFileFromConfigFile({ configPath, outPath }) {
   await generateXlsxFileFromConfig(config, absOutPath);
   return absOutPath;
 }
+
+export async function generateXlsxFilesFromConfigDir({ configDir, outDir = 'out' }) {
+  if (!configDir) {
+    throw new Error('configDir is required');
+  }
+
+  const absConfigDir = path.isAbsolute(configDir) ? configDir : path.join(process.cwd(), configDir);
+  const absOutDir = path.isAbsolute(outDir) ? outDir : path.join(process.cwd(), outDir);
+
+  await fs.mkdir(absOutDir, { recursive: true });
+  const entries = await fs.readdir(absConfigDir, { withFileTypes: true });
+  const jsonFiles = entries
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .filter((name) => name.toLowerCase().endsWith('.json'));
+
+  const results = [];
+  for (const fileName of jsonFiles) {
+    const configPath = path.join(absConfigDir, fileName);
+    const baseName = path.parse(fileName).name || 'output';
+    const outPath = path.join(absOutDir, `${baseName}.xlsx`);
+    const generated = await generateXlsxFileFromConfigFile({ configPath, outPath });
+    results.push({ configPath, outPath: generated });
+  }
+
+  return results;
+}

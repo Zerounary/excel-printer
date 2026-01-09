@@ -2,3 +2,5 @@ node_modules/
 dist/
 output.xlsx
 excel-printer-rs/
+files/
+out/

@@ -2,8 +2,8 @@
 
 基于 `config.json` 的**Excel 打印模板生成器**。
 
-- 输入：一个 JSON 配置文件（默认 `config.json`）
-- 输出：一个 `.xlsx` 文件（默认 `output.xlsx`）
+- 输入：一个 JSON 配置文件（默认 `config.json`），或一个包含多个 JSON 的文件夹
+- 输出：单个 `.xlsx`（默认 `output.xlsx`）或批量输出到某个目录（默认 `out/`）
 
 ## 安装与生成
 
@@ -16,13 +16,18 @@ npm run generate
 
 ```bash
 node src/index.js --config config.json --out output.xlsx
+# 或批量模式（默认输出到 out/，与输入文件同名）：
+node src/index.js --config-dir configs --out-dir out
 ```
 
 也可以通过可执行命令运行（安装为依赖后可用）：
 
 ```bash
 excel-printer --config config.json --out output.xlsx
+excel-printer --config-dir configs --out-dir out
 ```
+
+> 当 `--config-dir` 提供时，会遍历该目录下所有 `.json` 文件批量生成 Excel。此时 `--config/--out` 会被忽略。
 
 ## 作为库使用（推荐）
 
@@ -52,7 +57,10 @@ await generateXlsxFileFromConfigFile({
 可用 API：
 
 - core（浏览器/Node 通用）：`generateWorkbookFromConfig(config)`
-- node（仅 Node）：`generateXlsxFileFromConfig(config, outPath)` / `generateXlsxFileFromConfigFile({ configPath, outPath })`
+- node（仅 Node）：
+  - `generateXlsxFileFromConfig(config, outPath)`
+  - `generateXlsxFileFromConfigFile({ configPath, outPath })`
+  - `generateXlsxFilesFromConfigDir({ configDir, outDir })` —— 批量读取目录内所有 JSON，并把结果写到 `outDir`（默认 `out/`）
 
 ## 变量替换（模板）
 

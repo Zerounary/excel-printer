@@ -1,8 +1,22 @@
 import { parseArgs } from './cli.js';
-import { generateXlsxFileFromConfigFile } from './generate.js';
+import { generateXlsxFileFromConfigFile, generateXlsxFilesFromConfigDir } from './generate.js';
 
 async function main() {
-  const { config: configPathRaw, out: outPathRaw } = parseArgs(process.argv);
+  const { config: configPathRaw, out: outPathRaw, configDir, outDir } = parseArgs(process.argv);
+
+  if (configDir) {
+    const results = await generateXlsxFilesFromConfigDir({
+      configDir,
+      outDir,
+    });
+    results.forEach(({ configPath, outPath }) => {
+      process.stdout.write(`Generated: ${outPath} (from ${configPath})\n`);
+    });
+    if (results.length === 0) {
+      process.stdout.write('No JSON config files found.\n');
+    }
+    return;
+  }
 
   const outPath = await generateXlsxFileFromConfigFile({
     configPath: configPathRaw,

@@ -13,6 +13,7 @@
   "type": "module",
   "scripts": {
     "generate": "node src/index.js --config config.json --out output.xlsx",
+    "generate-dir": "node src/index.js --config-dir files --out-dir out",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
