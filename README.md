@@ -15,8 +15,9 @@ npm run generate
 等价于：
 
 ```bash
+# 单个 config
 node src/index.js --config config.json --out output.xlsx
-# 或批量模式（默认输出到 out/，与输入文件同名）：
+# 批量模式（默认输出到 out/）
 node src/index.js --config-dir configs --out-dir out
 ```
 
@@ -27,7 +28,8 @@ excel-printer --config config.json --out output.xlsx
 excel-printer --config-dir configs --out-dir out
 ```
 
-> 当 `--config-dir` 提供时，会遍历该目录下所有 `.json` 文件批量生成 Excel。此时 `--config/--out` 会被忽略。
+> - `--config-dir` 提供时，会遍历该目录下所有 `.json` 文件批量生成 Excel。此时 `--config/--out` 会被忽略。
+> - 目录模式下，系统会把 **JSON 文件名当作模板**：例如把 `{{today}}-{{company.name}}-发货单.json` 解析成 `2025-01-01-某某公司-发货单.xlsx`。文件名模板可使用 config `variables` 里的任意字段，另内置 `{{file.name}}`、`{{file.baseName}}`、`{{today}}` 以及 `{{date.year}}`/`month`/`day`。非法文件字符会自动替换，并补全 `.xlsx` 后缀。
 
 ## 作为库使用（推荐）
 
@@ -60,7 +62,18 @@ await generateXlsxFileFromConfigFile({
 - node（仅 Node）：
   - `generateXlsxFileFromConfig(config, outPath)`
   - `generateXlsxFileFromConfigFile({ configPath, outPath })`
-  - `generateXlsxFilesFromConfigDir({ configDir, outDir })` —— 批量读取目录内所有 JSON，并把结果写到 `outDir`（默认 `out/`）
+  - `generateXlsxFilesFromConfigDir({ configDir, outDir })` —— 批量读取目录内所有 JSON，并把结果写到 `outDir`（默认 `out/`），输出文件名自动根据 JSON 文件名模板计算
+
+## JSON 文件名模板规则
+
+在批量模式（`--config-dir` 或 `generateXlsxFilesFromConfigDir`）下，JSON 文件名（去掉 `.json`）会被当作模板字符串，支持与 config 内相同的 `{{path.to.var}}` 语法：
+
+- `{{file.name}}` / `{{file.baseName}}`：原始文件名与去掉扩展名后的部分。
+- `{{today}}`：当前日期，格式 `YYYY-MM-DD`。
+- `{{date.year}}` / `{{date.month}}` / `{{date.day}}`：当前年月日。
+- 以及配置里声明的任意 `variables`。
+
+示例：`files/{{today}}-{{company.name}}-发货单.json` 会输出到 `out/2026-01-05-示例供应链有限公司-发货单.xlsx`。
 
 ## 变量替换（模板）
 
