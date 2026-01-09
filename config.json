@@ -228,10 +228,101 @@
                         ]
                     }
                 }
+            },
+            {
+                "template": "supplier_good_sum",
+                "name": "备货汇总统计",
+                "variables": {
+                    "good_sum": {
+                        "title": "备货汇总统计",
+                        "headers": [
+                            "供应商",
+                            "商品名称",
+                            "商品单位",
+                            "商品数量",
+                            "商品单价",
+                            "商品总价",
+                            "供应商总金额"
+                        ],
+                        "mergeColumns": [
+                            "供应商",
+                            "供应商总金额"
+                        ],
+                        "rows": [
+                            [
+                                "某某食品有限公司",
+                                "本地菜瓜",
+                                "斤",
+                                "5614",
+                                "￥2.28",
+                                "￥12,799.92",
+                                "￥32,199"
+                            ],
+                            [
+                                "",
+                                "新土豆(黄皮黄心，3两-1斤)",
+                                "斤",
+                                "21698",
+                                "￥1.67",
+                                "￥36,235.66",
+                                "￥32,199"
+                            ],
+                            [
+                                "",
+                                "吊青冬瓜（单个20斤以上）",
+                                "斤",
+                                "9368",
+                                "￥1.48",
+                                "￥13,864.64",
+                                "￥32,199"
+                            ],
+                            [
+                                "",
+                                "莴笋头",
+                                "斤",
+                                "5998",
+                                "￥1.85",
+                                "￥11,096.30",
+                                "￥32,199"
+                            ]
+                        ]
+                    }
+                }
             }
         ]
     },
     "sheetsTemplates": [
+        {
+            "id": "supplier_good_sum",
+            "name": "供应商备货商品统计",
+            "paper": "A4",
+            "maxColumns": 7,
+            "rows": [
+                {
+                    "type": "title",
+                    "value": "{{good_sum.title}}"
+                },
+                {
+                    "type": "space-row",
+                    "count": 1
+                },
+                {
+                    "type": "table",
+                    "headers": {
+                        "$var": "good_sum.headers"
+                    },
+                    "mergeColumns": {
+                        "$var": "good_sum.mergeColumns"
+                    },
+                    "columnWidths": {
+                        "$var": "good_sum.columnWidths"
+                    },
+                    "rows": {
+                        "$var": "good_sum.rows"
+                    }
+                }
+            ]
+        },
         {
             "id": "supplier_pick",
             "name": "供应商备货",
